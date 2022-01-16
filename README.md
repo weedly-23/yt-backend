@@ -1,3 +1,7 @@
-YOTUBE-BACKEND APP & EXCEL
+# YOTUBE-BACKEND APP & EXCEL
 
-run yt_backend.py
+## Contributing
+
+```bash
+python yt_backend.py
+```
