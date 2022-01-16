@@ -4,6 +4,7 @@ import structlog
 
 from ytparser.config import AppConfig, ChannelConfig
 from ytparser.rssclient.client import RssClient
+from ytparser.youtube.client import YoutubeClient
 
 logger = structlog.getLogger(__name__)
 
@@ -11,10 +12,10 @@ logger = structlog.getLogger(__name__)
 class Worker:
 
     def __init__(self, config: AppConfig) -> None:
-        self.api_key = config.youtube_key
         self.period = config.period
         self.channels = config.channels
         self.rss = RssClient()
+        self.youtube = YoutubeClient(config.youtube_key)
         self.is_working = False
 
     def start(self) -> None:
@@ -41,7 +42,17 @@ class Worker:
         channel.last_published = articles[-1].published
 
         for article in articles:
-            logger.info(f'Article {article}', channel=channel.title)
+            logger.info(f'Article {article}', channel=channel.title, article=article.uid)
+            self.check_youtube(article.video_id)
+
+    def check_youtube(self, video_id: str) -> None:
+        video = self.youtube.get_video(video_id)
+        if not video:
+            logger.debug('no video received', video=video_id)
+            return
+
+        category = video.snippet.category.name
+        logger.debug(f'receive video info: {category}', video=video_id)
 
     def stop(self) -> None:
         self.is_working = False

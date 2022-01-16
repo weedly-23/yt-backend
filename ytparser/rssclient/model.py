@@ -1,11 +1,23 @@
-from datetime import datetime
-
 import arrow
 from pydantic import BaseModel, Field, validator
 
 
+class Rating(BaseModel):
+    count: int
+    average: float
+    minimal: int = Field(alias='min')
+    maximum: int = Field(alias='max')
+
+
+class Statistics(BaseModel):
+    views_count: int = Field(alias='views')
+
+
 class Article(BaseModel):
     uid: str = Field(alias='id')
+    video_id: str = Field(alias='yt_videoid')
+    media_starrating: Rating
+    media_statistics: Statistics
     author: str
     published: arrow.Arrow
     link: str
