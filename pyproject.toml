@@ -12,6 +12,8 @@ openpyxl = "^3.0.9"
 requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
+wemake-python-styleguide = "^0.16.0"
+mypy = "^0.931"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
