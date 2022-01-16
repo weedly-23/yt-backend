@@ -51,8 +51,16 @@ class Worker:
             logger.debug('no video received', video=video_id)
             return
 
-        category = video.snippet.category.name
-        logger.debug(f'receive video info: {category}', video=video_id)
+        minutes, seconds = divmod(video.details.duration.total_seconds(), 60)
+        logger.debug(
+            'receive video info',
+            video=video_id,
+            category=video.snippet.category.name,
+            duration='{minutes}m {seconds}s'.format(
+                minutes=int(minutes),
+                seconds=int(seconds),
+            ),
+        )
 
     def stop(self) -> None:
         self.is_working = False
