@@ -17,6 +17,7 @@ rich = "^11.0.0"
 "ruamel.yaml" = "^0.17.20"
 feedparser = "^6.0.8"
 arrow = "^1.2.1"
+yarl = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 wemake-python-styleguide = "^0.16.0"

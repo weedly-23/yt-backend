@@ -1,5 +1,4 @@
-from datetime import datetime
-
+import arrow
 import feedparser
 import httpx
 
@@ -10,7 +9,7 @@ class RssClient:
 
     url = 'https://www.youtube.com/feeds/videos.xml'
 
-    def get(self, channel_id: str, last_published: datetime) -> list[Article]:
+    def get(self, channel_id: str, last_published: arrow.Arrow) -> list[Article]:
         response = httpx.get(self.url, params={'channel_id': channel_id})
         response.raise_for_status()
         feed = feedparser.parse(response.text)
