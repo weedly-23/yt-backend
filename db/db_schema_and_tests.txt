@@ -1,0 +1,378 @@
+CREATE TABLE yt_channels(
+channel_id primary key not null,
+name text,
+metadata_quality text,
+genre text,
+priority text,
+country text,
+dri text,
+videos_count integer,
+total_views integer,
+subs integer,
+playlist_id text,
+created text,
+added text
+);
+
+CREATE TABLE yt_channels_stats(
+log_id integer primary key autoincrement,
+channel_id text not null,
+name text,
+subs integer,
+videos_count integer,
+total_views integer,
+date text);
+
+CREATE TABLE music_metadata(
+replace_id text primary key,
+channel_id text,
+name text,
+reverse string,
+separator string,
+part integer,
+regex string,
+replace text,
+with text,
+artist text,
+add_subtitle text,
+isolated text,
+date text);
+
+
+CREATE TABLE yt_videos(
+video_id primary key not null,
+source_id text not null,
+source_type text,
+source_title text,
+original_metadata text,
+length text,
+views integer,
+publish_date text,
+yt_category integer,
+rating integer,
+description text,
+ingestion_status text
+);
+
+CREATE TABLE videos_processed(
+video_id primary key not null,
+date_submitted text,
+ecoute_owner text,
+source_id text,
+source_dri text,
+source_title text,
+date_added_to_db text
+);
+
+
+
+
+--------------------------------------------------
+WORKING QUERY:
+
+SELECT
+yt_channels.channel_id as ID
+FROM
+yt_channels
+LEFT JOIN yt_channels_stats ON
+yt_channels_stats.channel_id = ID
+WHERE
+priority <> 'MUTE'
+or 
+priority is NULL
+GROUP BY
+ID
+HAVING
+(julianday('now','localtime') - max(julianday(yt_channels_stats.date))) > 14;
+----------------------------------------------
+
+CREATE TABLE yt_channels_log(
+id integer primary key,
+operation text,
+new_old text,
+channel_id text,
+name text,
+metadata_quality text,
+genre text,
+priority text,
+country text,
+dri text,
+videos_count integer,
+total_views integer,
+subs integer,
+playlist_id text,
+created text,
+added text,
+operation_date text
+);
+
+
+
+
+CREATE TRIGGER cnl_stats_delete_trigger
+after delete on yt_channels
+begin
+delete from yt_channels_stats
+where channel_id = old.id;
+end;
+
+
+
+
+------------------------TRIGGERS-----------------------------
+1) INSERT ON yt_channels
+
+CREATE TRIGGER yt_channels_insert_trigger
+after INSERT on yt_channels
+BEGIN
+INSERT INTO yt_channels_log
+(operation,
+new_old,
+channel_id,
+name,
+metadata_quality,
+genre,
+priority,
+country,
+dri,
+videos_count,
+total_views,
+subs,
+playlist_id,
+created,
+added,
+operation_date
+)
+VALUES (
+'INSERT',
+'NEW',
+new.channel_id,
+new.name,
+new.metadata_quality,
+new.genre,
+new.priority,
+new.country,
+new.dri,
+new.videos_count,
+new.total_views,
+new.subs,
+new.playlist_id,
+new.created,
+new.added,
+DATETIME('now','localtime')
+);
+END;
+
+
+2) UPDATE on yt_channels
+
+CREATE TRIGGER yt_channels_update_trigger
+AFTER UPDATE on yt_channels
+BEGIN
+INSERT INTO yt_channels_log
+(operation,
+new_old,
+channel_id,
+name,
+metadata_quality,
+genre,
+priority,
+country,
+dri,
+videos_count,
+total_views,
+subs,
+playlist_id,
+created,
+added,
+operation_date
+)
+VALUES (
+'UPDATE',
+'NEW',
+new.channel_id,
+new.name,
+new.metadata_quality,
+new.genre,
+new.priority,
+new.country,
+new.dri,
+new.videos_count,
+new.total_views,
+new.subs,
+new.playlist_id,
+new.created,
+new.added,
+DATETIME('now','localtime')
+);
+END;
+
+3)
+
+CREATE TRIGGER yt_channels_newly_created_trigger
+AFTER UPDATE on yt_channels
+WHEN
+old.subs is NULL AND new.subs is not NULL
+AND
+old.videos_count is NULL AND new.videos_count is not NULL
+AND
+old.total_views is NULL AND new.total_views is not NULL
+BEGIN
+INSERT INTO yt_channels_log
+(operation,
+new_old,
+channel_id,
+name,
+metadata_quality,
+genre,
+priority,
+country,
+dri,
+videos_count,
+total_views,
+subs,
+playlist_id,
+created,
+added,
+operation_date
+)
+VALUES (
+'NEW CHANNEL',
+'NEW',
+new.channel_id,
+new.name,
+new.metadata_quality,
+new.genre,
+new.priority,
+new.country,
+new.dri,
+new.videos_count,
+new.total_views,
+new.subs,
+new.playlist_id,
+new.created,
+new.added,
+DATETIME('now','localtime')
+);
+INSERT INTO yt_channels_stats(
+channel_id,
+name,
+subs,
+videos_count,
+total_views,
+date)
+VALUES(
+new.channel_id,
+new.name,
+new.subs,
+new.videos_count,
+new.total_views,
+DATETIME('now','localtime')
+);
+END;
+
+---------------ONE MORE TRIGGER: CATCHING ALL THE UPDATE
+CREATE TRIGGER yt_update_channels_trigger
+AFTER UPDATE on yt_channels
+WHEN
+(old.subs is NOT NULL AND new.subs is not NULL)
+AND
+(old.priority <> new.priority
+OR
+old.genre <> new.genre
+OR
+old.metadata_quality <> new.metadata_quality
+OR
+old.country <> new.country
+OR
+old.dri <> new.dri)
+BEGIN
+INSERT INTO yt_channels_log
+(operation,
+new_old,
+channel_id,
+name,
+metadata_quality,
+genre,
+priority,
+country,
+dri,
+videos_count,
+total_views,
+subs,
+playlist_id,
+created,
+added,
+operation_date
+)
+VALUES (
+'UPDATE',
+'NEW VALUES',
+new.channel_id,
+new.name,
+new.metadata_quality,
+new.genre,
+new.priority,
+new.country,
+new.dri,
+new.videos_count,
+new.total_views,
+new.subs,
+new.playlist_id,
+new.created,
+new.added,
+DATETIME('now','localtime')
+);
+INSERT INTO yt_channels_log
+(operation,
+new_old,
+channel_id,
+name,
+metadata_quality,
+genre,
+priority,
+country,
+dri,
+videos_count,
+total_views,
+subs,
+playlist_id,
+created,
+added,
+operation_date
+)
+VALUES (
+'UPDATE',
+'OLD VALUES',
+old.channel_id,
+old.name,
+old.metadata_quality,
+old.genre,
+old.priority,
+old.country,
+old.dri,
+old.videos_count,
+old.total_views,
+old.subs,
+old.playlist_id,
+old.created,
+old.added,
+DATETIME('now','localtime')
+);
+END;
+
+-----------------------
+delete from yt_channels;
+delete from yt_channels_stats;
+delete from yt_channels_log;
+select * from yt_channels;
+select * from yt_channels_stats;
+select * from yt_channels_log;
+
+select * from yt_channels
+where priority is null
+order by total_views desc
+limit 10;
+
+
+select source_id, source_title from videos_processed where source_id <> "n/a" and source_dri is null group by source_id;
