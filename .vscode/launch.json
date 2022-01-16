@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ytparser",
+      "type": "python",
+      "request": "launch",
+      "module": "ytparser",
+      "console": "internalConsole",
+    }
+  ]
+}

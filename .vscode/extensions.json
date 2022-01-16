@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+      "EditorConfig.EditorConfig",
+      "ryanluker.vscode-coverage-gutters",
+      "ms-azuretools.vscode-docker",
+      "mikestead.dotenv",
+      "usernamehw.errorlens",
+      "mhutchie.git-graph",
+      "codezombiech.gitignore",
+      "eamodio.gitlens",
+      "stubailo.ignore-gitignore",
+      "ms-kubernetes-tools.vscode-kubernetes-tools",
+      "yzhang.markdown-all-in-one",
+      "DavidAnson.vscode-markdownlint",
+      "ms-python.vscode-pylance",
+      "wayou.vscode-todo-highlight",
+      "bbenoist.vagrant",
+      "emmanuelbeziat.vscode-great-icons",
+      "redhat.vscode-yaml",
+  ]
+}
