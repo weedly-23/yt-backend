@@ -1,7 +1,9 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
-from pydantic import BaseModel
+import arrow
+from pydantic import BaseModel, Field, validator
 from ruamel.yaml.main import YAML
 
 
@@ -9,6 +11,17 @@ class ChannelConfig(BaseModel):
     uid: int
     youtube_id: str
     title: str
+    last_published: arrow.Arrow = Field(default_factory=arrow.Arrow.now)
+
+    @validator('last_published', pre=True)
+    def validate_published(cls, value):  # noqa: N805
+        if isinstance(value, arrow.Arrow):
+            return value
+
+        return arrow.get(value)
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class AppConfig(BaseModel):

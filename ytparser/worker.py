@@ -33,9 +33,15 @@ class Worker:
     def check_channel(self, channel: ChannelConfig) -> None:
         logger.debug('check youtube channel', channel=channel.title)
 
-        articles = self.rss.get(channel.youtube_id)
+        articles = self.rss.get(channel.youtube_id, channel.last_published)
+        if not articles:
+            logger.info('No articles found', channel=channel.title)
+            return
+
+        channel.last_published = articles[-1].published
+
         for article in articles:
-            logger.info(f'Article {article.author}: {article.title}')
+            logger.info(f'Article {article}', channel=channel.title)
 
     def stop(self) -> None:
         self.is_working = False

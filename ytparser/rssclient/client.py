@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import feedparser
 import httpx
 
@@ -8,8 +10,10 @@ class RssClient:
 
     url = 'https://www.youtube.com/feeds/videos.xml'
 
-    def get(self, channel_id: str) -> list[Article]:
+    def get(self, channel_id: str, last_published: datetime) -> list[Article]:
         response = httpx.get(self.url, params={'channel_id': channel_id})
         response.raise_for_status()
         feed = feedparser.parse(response.text)
-        return [Article(**article) for article in feed['entries']]
+        articles = [Article(**article) for article in feed['entries']]
+        new_articles = [article for article in articles if article.published > last_published]
+        return sorted(new_articles, key=lambda article: article.published)
