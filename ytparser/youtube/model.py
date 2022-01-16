@@ -1,6 +1,5 @@
 from datetime import timedelta
 from enum import Enum, IntEnum
-from typing import Optional
 
 import arrow
 from pydantic import BaseModel, Field, validator
