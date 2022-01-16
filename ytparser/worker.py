@@ -3,6 +3,7 @@ import time
 import structlog
 
 from ytparser.config import AppConfig, ChannelConfig
+from ytparser.rssclient.client import RssClient
 
 logger = structlog.getLogger(__name__)
 
@@ -13,6 +14,7 @@ class Worker:
         self.api_key = config.youtube_key
         self.period = config.period
         self.channels = config.channels
+        self.rss = RssClient()
         self.is_working = False
 
     def start(self) -> None:
@@ -30,7 +32,10 @@ class Worker:
 
     def check_channel(self, channel: ChannelConfig) -> None:
         logger.debug('check youtube channel', channel=channel.title)
-        # TODO: call youtube api for new movies
+
+        articles = self.rss.get(channel.youtube_id)
+        for article in articles:
+            logger.info(f'Article {article.author}: {article.title}')
 
     def stop(self) -> None:
         self.is_working = False
