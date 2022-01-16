@@ -2,7 +2,7 @@ import time
 
 import structlog
 
-from ytparser.config import AppConfig
+from ytparser.config import AppConfig, ChannelConfig
 
 logger = structlog.getLogger(__name__)
 
@@ -12,6 +12,7 @@ class Worker:
     def __init__(self, config: AppConfig) -> None:
         self.api_key = config.youtube_key
         self.period = config.period
+        self.channels = config.channels
         self.is_working = False
 
     def start(self) -> None:
@@ -21,13 +22,14 @@ class Worker:
         self.is_working = True
 
         while self.is_working:
-            self.check()
+            for channel in self.channels:
+                self.check_channel(channel)
 
             logger.debug(f'sleep for {self.period} seconds')
             time.sleep(self.period)
 
-    def check(self) -> None:
-        logger.debug('check youtube content')
+    def check_channel(self, channel: ChannelConfig) -> None:
+        logger.debug('check youtube channel', channel=channel.title)
         # TODO: call youtube api for new movies
 
     def stop(self) -> None:
