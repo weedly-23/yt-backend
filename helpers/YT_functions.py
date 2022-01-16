@@ -33,7 +33,7 @@ apiBaseUrl = {
 }
 #https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 -- use these country codes, create a good dict with big countries
 
-mostPopular_example = "https://youtube.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&videoCategoryId=10&maxResults=50&regionCode=ru&key=AIzaSyCL0l1ZGmBzZ1ec1aQHi8626tB69X18Mpk"
+mostPopular_example = "https://youtube.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&videoCategoryId=10&maxResults=50&regionCode=ru&key="+ytApiKey
 
 # ------------------------------------------------
 # -------Functions that work with strings and modify them using several methods---------------------
